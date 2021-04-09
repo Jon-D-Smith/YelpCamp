@@ -56,6 +56,7 @@ app.get('/campgrounds/:id', async (req, res) => {
     res.render('campgrounds/show', { campground })
 })
 
+//Campground edit pages
 app.get('/campgrounds/:id/edit', async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findById(id);
@@ -69,6 +70,7 @@ app.put('/campgrounds/:id', async (req, res) => {
     res.redirect(`/campgrounds/${campground._id}`);
 })
 
+//Campground delete route
 app.delete('/campgrounds/:id', async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findByIdAndDelete(id)
