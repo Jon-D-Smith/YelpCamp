@@ -1,6 +1,7 @@
 const express = require('express');
 const port = 3000;
 const path = require('path');
+const ejsMate = require('ejs-mate');
 const methodOverride = require('method-override')
 //DB Model and setup
 const mongoose = require('mongoose');
@@ -19,6 +20,7 @@ db.once("open", () => {
 
 const app = express();
 //setting View engine and template engine
+app.engine('ejs', ejsMate)
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'))
 
