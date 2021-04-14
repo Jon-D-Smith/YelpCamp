@@ -4,11 +4,12 @@ const path = require('path');
 const ejsMate = require('ejs-mate');
 const methodOverride = require('method-override')
 const catchAsync = require('./utils/catchAsync');
-
+const ExpressError = require('./utils/ExpressError')
 
 //DB Model and setup
 const mongoose = require('mongoose');
-const Campground = require('./models/campground')
+const Campground = require('./models/campground');
+const { STATUS_CODES } = require('http');
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {
     useNewUrlParser: true,
     useCreateIndex: true,
@@ -38,17 +39,17 @@ app.get('/', (req, res) => {
     res.render('home')
 })
 //All campgrounds
-app.get('/campgrounds', async (req, res) => {
+app.get('/campgrounds', catchAsync(async (req, res) => {
     const campgrounds = await Campground.find({})
     res.render('campgrounds/index', { campgrounds })
-})
+}))
 //Creating Campgrounds
 app.get('/campgrounds/new', (req, res) => {
     res.render('campgrounds/new')
 })
 
 app.post('/campgrounds', catchAsync(async (req, res, next) => {
-
+    if (!req.body.campground) throw new ExpressError('Invalid campground data', 400)
     const campground = new Campground(req.body.campground);
     await campground.save();
     res.redirect(`/campgrounds/${campground._id}`);
@@ -57,36 +58,41 @@ app.post('/campgrounds', catchAsync(async (req, res, next) => {
 
 
 //Campground detail page
-app.get('/campgrounds/:id', async (req, res) => {
+app.get('/campgrounds/:id', catchAsync(async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findById(id);
     res.render('campgrounds/show', { campground })
-})
+}))
 
 //Campground edit pages
-app.get('/campgrounds/:id/edit', async (req, res) => {
+app.get('/campgrounds/:id/edit', catchAsync(async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findById(id);
     res.render('campgrounds/edit', { campground })
 
-})
+}))
 
-app.put('/campgrounds/:id', async (req, res) => {
+app.put('/campgrounds/:id', catchAsync(async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
     res.redirect(`/campgrounds/${campground._id}`);
-})
+}))
 
 //Campground delete route
-app.delete('/campgrounds/:id', async (req, res) => {
+app.delete('/campgrounds/:id', catchAsync(async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findByIdAndDelete(id)
     res.redirect('/campgrounds')
+}))
+
+app.all('*', (req, res, next) => {
+    next(new ExpressError('Page Not Found', 404))
 })
 
 
 app.use((err, req, res, next) => {
-    res.send('Oh boy, something went wrong!')
+    const { statusCode = 500, message = "Something went wrong" } = err;
+    res.status(statusCode).send(message);
 })
 
 
