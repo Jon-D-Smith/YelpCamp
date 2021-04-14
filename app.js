@@ -10,6 +10,7 @@ const ExpressError = require('./utils/ExpressError')
 const mongoose = require('mongoose');
 const Campground = require('./models/campground');
 const { STATUS_CODES } = require('http');
+const { error } = require('console');
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {
     useNewUrlParser: true,
     useCreateIndex: true,
@@ -92,7 +93,8 @@ app.all('*', (req, res, next) => {
 
 app.use((err, req, res, next) => {
     const { statusCode = 500, message = "Something went wrong" } = err;
-    res.status(statusCode).send(message);
+    if (!err.message) err.message = "Oh no, something went wrong!";
+    res.status(statusCode).render('error', { err });
 })
 
 
