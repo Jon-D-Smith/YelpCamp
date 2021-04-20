@@ -10,6 +10,7 @@ const ExpressError = require('./utils/ExpressError')
 //DB Model and setup
 const mongoose = require('mongoose');
 const Campground = require('./models/campground');
+const Review = require('./models/review');
 const { STATUS_CODES } = require('http');
 const { error } = require('console');
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {
@@ -100,6 +101,21 @@ app.delete('/campgrounds/:id', catchAsync(async (req, res) => {
     const campground = await Campground.findByIdAndDelete(id)
     res.redirect('/campgrounds')
 }))
+
+
+// Review Routing
+
+app.post('/campgrounds/:id/reviews', async (req, res) => {
+    const { id } = req.params;
+    const campground = await Campground.findById(id);
+    const review = await new Review(req.body.review)
+    campground.reviews.push(review);
+    await review.save();
+    await campground.save();
+    res.redirect(`/campgrounds/${campground._id}`)
+})
+
+
 
 app.all('*', (req, res, next) => {
     next(new ExpressError('Page Not Found', 404))
