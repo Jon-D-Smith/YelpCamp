@@ -7,6 +7,7 @@ const flash = require('connect-flash');
 const methodOverride = require('method-override');
 const ExpressError = require('./utils/ExpressError');
 
+
 //DB Model and setup
 const mongoose = require('mongoose');
 const Campground = require('./models/campground');
@@ -32,15 +33,6 @@ db.once("open", () => {
 });
 
 const app = express();
-//setting View engine and template engine
-app.engine('ejs', ejsMate);
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-
-//App use config
-app.use(express.urlencoded({ extended: true }));
-app.use(methodOverride('_method'));
-app.use(express.static(path.join(__dirname, 'public')));
 
 const sessionConfig = {
     secret: 'thiswillbereplaced',
@@ -54,6 +46,19 @@ const sessionConfig = {
     }
 }
 
+
+
+//setting View engine and template engine
+app.engine('ejs', ejsMate);
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+//App use config
+app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride('_method'));
+app.use(express.static(path.join(__dirname, 'public')));
+
+
 app.use(session(sessionConfig));
 app.use(flash());
 
@@ -64,6 +69,7 @@ app.use((req, res, next) => {
     res.locals.error = req.flash('error');
     next();
 })
+
 //App use routes
 app.use('/campgrounds', campgrounds);
 app.use('/campgrounds/:id/reviews', reviews);
@@ -79,9 +85,9 @@ app.all('*', (req, res, next) => {
 })
 
 app.use((err, req, res, next) => {
-    const { statusCode = 500, message = "Something went wrong" } = err;
-    if (!err.message) err.message = "Oh no, something went wrong!";
-    res.status(statusCode).render('error', { err });
+    const { statusCode = 500 } = err;
+    if (!err.message) err.message = 'Oh No, Something Went Wrong!'
+    res.status(statusCode).render('error', { err })
 })
 
 
