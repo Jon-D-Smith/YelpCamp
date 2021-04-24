@@ -2,8 +2,9 @@ const express = require('express');
 const port = 3000;
 const path = require('path');
 const ejsMate = require('ejs-mate');
-const methodOverride = require('method-override')
-const ExpressError = require('./utils/ExpressError')
+const session = require('express-session');
+const methodOverride = require('method-override');
+const ExpressError = require('./utils/ExpressError');
 
 //DB Model and setup
 const mongoose = require('mongoose');
@@ -31,14 +32,26 @@ db.once("open", () => {
 
 const app = express();
 //setting View engine and template engine
-app.engine('ejs', ejsMate)
+app.engine('ejs', ejsMate);
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'))
+app.set('views', path.join(__dirname, 'views'));
 
 //App use config
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, 'public')));
+
+const sessionConfig = {
+    secret: 'thiswillbereplaced',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
+        maxAge: 1000 * 60 * 60 * 24 * 7
+    }
+}
+
+app.use(session(sessionConfig));
 //App use routes
 app.use('/campgrounds', campgrounds);
 app.use('/campgrounds/:id/reviews', reviews);
