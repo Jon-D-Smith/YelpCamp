@@ -26,8 +26,9 @@ mongoose.connect('mongodb://localhost:27017/yelp-camp', {
 });
 
 //Routes
-const campgrounds = require('./routes/campgrounds');
-const reviews = require('./routes/reviews');
+const campgroundRoutes = require('./routes/campgrounds');
+const reviewRoutes = require('./routes/reviews');
+const userRoutes = require('./routes/users');
 
 //DB Checking for errors
 const db = mongoose.connection;
@@ -83,15 +84,12 @@ app.use((req, res, next) => {
     next();
 })
 
-// app.get('/fakeuser', async (req, res) => {
-//     const user = new User({ email: "Jon@gmail.com", username: 'Jon' });
-//     const newUser = await User.register(user, "chicken");
-//     res.send(newUser);
-// })
+
 
 //App use routes
-app.use('/campgrounds', campgrounds);
-app.use('/campgrounds/:id/reviews', reviews);
+app.use('/campgrounds', campgroundRoutes);
+app.use('/campgrounds/:id/reviews', reviewRoutes);
+app.use('/', userRoutes)
 
 
 //Home Page
