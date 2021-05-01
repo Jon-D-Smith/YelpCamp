@@ -4,11 +4,18 @@ const campgrounds = require('../controllers/campgrounds');
 const catchAsync = require('../utils/catchAsync');
 const { isLoggedIn, validateCampground, isAuthor } = require('../middleware.js')
 const Campground = require('../models/campground');
+const multer = require('multer');
+const { storage } = require('../cloudinary');
+const upload = multer({ storage });
 
 // Index route methods
 router.route('/')
     .get(catchAsync(campgrounds.index))
-    .post(isLoggedIn, validateCampground, catchAsync(campgrounds.createCampground))
+    // .post(isLoggedIn, validateCampground, catchAsync(campgrounds.createCampground))
+    .post(upload.single('image'), (req, res) => {
+        console.log(req.body, req.file)
+        res.send('it worked!')
+    })
 
 //New campground form
 router.get('/new', isLoggedIn, campgrounds.renderNewForm)
