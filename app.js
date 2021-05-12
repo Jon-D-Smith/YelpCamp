@@ -12,6 +12,7 @@ const methodOverride = require('method-override');
 const ExpressError = require('./utils/ExpressError');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
+const helmet = require('helmet');
 
 const mongoSanitize = require('express-mongo-sanitize');
 
@@ -74,6 +75,8 @@ app.use(mongoSanitize())
 
 app.use(session(sessionConfig));
 app.use(flash());
+
+app.use(helmet({contentSecurityPolicy: false}))
 
 //Authentication through passport
 
